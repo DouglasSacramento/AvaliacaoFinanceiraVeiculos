@@ -1,10 +1,12 @@
 let valorFipe = document.querySelector("#valor-fipe");
 let valorParcelas = document.querySelector("#valor-parcelas");
+
 const valorIpva = document.querySelector("#valor-ipva");
 const valorSeguro = document.querySelector("#valor-seguro");
 const calcTotal = document.querySelector("#button-calcTotal");
 
 const textTotal = document.querySelector("h2");
+const tabelaFipe = document.querySelector("#tabela-fipe");
 const ipvaMensal = document.querySelector("#ipva-mensal");
 const seguroMensal = document.querySelector("#seguro-mensal");
 const parcelaMensal = document.querySelector("#parcela-mensal");
@@ -26,37 +28,65 @@ calcTotal.addEventListener("click", (event) => {
     valorParcelas.classList.remove("alertImput");
   }
 
+  valorFipe.value = formatNumber(valorFipe.value);
+  valorParcelas.value = formatNumber(valorParcelas.value);
+
   calculaIpva();
   calculaSeguro();
   calculoGeralText();
-
   destaqueResultado();
+  limpaInputs();
+});
+
+valorFipe.addEventListener("input", () => {
+  const hasCharactersRegex = /\D+/g;
+  valorFipe.value = valorFipe.value.replace(hasCharactersRegex, "");
+});
+
+valorParcelas.addEventListener("input", () => {
+  const hasCharactersRegex = /\D+/g;
+  valorParcelas.value = valorParcelas.value.replace(hasCharactersRegex, "");
 });
 
 function calculaIpva() {
-  const IPVA = valorFipe.value * 0.04;
-  valorIpva.value = IPVA.toFixed([2]);
+  let ipva = valorFipe.value;
+  const justNumbersIpva = ipva.split(",")[0].match(/\d+/g).join("");
+
+  ipva = justNumbersIpva * 0.04;
+  valorIpva.value = formatValuesBRL(ipva);
 }
 
 function calculaSeguro() {
-  const SEGURO = valorFipe.value * 0.06;
-  valorSeguro.value = SEGURO.toFixed([2]);
+  let seguro = valorFipe.value;
+  const justNumbersSeguro = seguro.split(",")[0].match(/\d+/g).join("");
+
+  seguro = justNumbersSeguro * 0.06;
+  valorSeguro.value = formatValuesBRL(seguro);
 }
 
 function calculoGeralText() {
-  let parcela = Number(valorParcelas.value);
-  let ipva = Number(valorIpva.value);
-  let seguro = Number(valorSeguro.value);
+  let fipe = valorFipe.value;
+  let parcela = valorParcelas.value;
+  let ipva = valorIpva.value;
+  let seguro = valorSeguro.value;
 
-  ipva = ipva / 12;
-  seguro = seguro / 12;
+  const justNumbersFipe = fipe.split(",")[0].match(/\d+/g).join("");
+  const justNumbersParcela = parcela.split(",")[0].match(/\d+/g).join("");
+  const justNumbersIpva = ipva.split(",")[0].match(/\d+/g).join("");
+  const justNumbersSeguro = seguro.split(",")[0].match(/\d+/g).join("");
+
+  fipe = Number(justNumbersFipe);
+  parcela = Number(justNumbersParcela);
+  ipva = justNumbersIpva / 12;
+  seguro = justNumbersSeguro / 12;
 
   const totalMes = parcela + ipva + seguro;
 
-  parcelaMensal.textContent = `Parcela mensal: R$ ${parcela.toFixed([2])}`;
-  ipvaMensal.textContent = `IPVA mensal: R$ ${ipva.toFixed([2])}`;
-  seguroMensal.textContent = `Seguro mensal: R$ ${seguro.toFixed([2])}`;
-  textTotal.textContent = `Total mensal: R$ ${totalMes.toFixed([2])}`;
+  tabelaFipe.textContent = `Tabela fipe: ${formatValuesBRL(fipe)}`;
+  parcelaMensal.textContent = `Parcela mensal: ${formatValuesBRL(parcela)}`;
+  ipvaMensal.textContent = `IPVA mensal: ${formatValuesBRL(ipva)}`;
+  seguroMensal.textContent = `Seguro mensal: ${formatValuesBRL(seguro)}`;
+  textTotal.textContent = `Total mensal: ${formatValuesBRL(totalMes)}`;
 }
 
 function destaqueResultado() {
@@ -64,4 +94,26 @@ function destaqueResultado() {
   const labelSeguro = document.querySelector("#label-seguro");
   labelIpva.style.color = "black";
   labelSeguro.style.color = "black";
+}
+
+function formatValuesBRL(value) {
+  return Number(value).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+function formatNumber(value) {
+  const number = parseFloat(value.replace(/\D/g, ""));
+  if (isNaN(number)) return "0,00";
+
+  return number
+    .toFixed(2)
+    .replace(".", ",")
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function limpaInputs() {
+  valorFipe.value = "";
+  valorParcelas.value = "";
 }
