@@ -78,3 +78,7 @@ h2 {
 .alertImput {
   border: 0.2rem solid #c01212;
 }
+
+#tabela-fipe {
+  font-weight: 700;
+}
