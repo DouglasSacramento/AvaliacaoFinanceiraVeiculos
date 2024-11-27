@@ -10,9 +10,11 @@ const tabelaFipe = document.querySelector("#tabela-fipe");
 const ipvaMensal = document.querySelector("#ipva-mensal");
 const seguroMensal = document.querySelector("#seguro-mensal");
 const parcelaMensal = document.querySelector("#parcela-mensal");
+valorFipe.focus();
 
 calcTotal.addEventListener("click", (event) => {
   event.preventDefault();
+  valorFipe.focus();
 
   if (!valorFipe.value) {
     valorFipe.classList.add("alertImput");
@@ -28,9 +30,6 @@ calcTotal.addEventListener("click", (event) => {
     valorParcelas.classList.remove("alertImput");
   }
 
-  valorFipe.value = formatNumber(valorFipe.value);
-  valorParcelas.value = formatNumber(valorParcelas.value);
-
   calculaIpva();
   calculaSeguro();
   calculoGeralText();
@@ -39,13 +38,17 @@ calcTotal.addEventListener("click", (event) => {
 });
 
 valorFipe.addEventListener("input", () => {
-  const hasCharactersRegex = /\D+/g;
-  valorFipe.value = valorFipe.value.replace(hasCharactersRegex, "");
+  let value = valorFipe.value.replace(/\D/g, "");
+
+  value = Number(value) / 100;
+  valorFipe.value = formatMaskValuesBRL(value);
 });
 
 valorParcelas.addEventListener("input", () => {
-  const hasCharactersRegex = /\D+/g;
-  valorParcelas.value = valorParcelas.value.replace(hasCharactersRegex, "");
+  let value = valorParcelas.value.replace(/\D/g, "");
+
+  value = Number(value) / 100;
+  valorParcelas.value = formatMaskValuesBRL(value);
 });
 
 function calculaIpva() {
@@ -53,7 +56,7 @@ function calculaIpva() {
   const justNumbersIpva = ipva.split(",")[0].match(/\d+/g).join("");
 
   ipva = justNumbersIpva * 0.04;
-  valorIpva.value = formatValuesBRL(ipva);
+  valorIpva.value = formatMaskValuesBRL(ipva);
 }
 
 function calculaSeguro() {
@@ -61,7 +64,7 @@ function calculaSeguro() {
   const justNumbersSeguro = seguro.split(",")[0].match(/\d+/g).join("");
 
   seguro = justNumbersSeguro * 0.06;
-  valorSeguro.value = formatValuesBRL(seguro);
+  valorSeguro.value = formatMaskValuesBRL(seguro);
 }
 
 function calculoGeralText() {
@@ -82,11 +85,11 @@ function calculoGeralText() {
 
   const totalMes = parcela + ipva + seguro;
 
-  tabelaFipe.textContent = `Tabela fipe: ${formatValuesBRL(fipe)}`;
-  parcelaMensal.textContent = `Parcela mensal: ${formatValuesBRL(parcela)}`;
-  ipvaMensal.textContent = `IPVA mensal: ${formatValuesBRL(ipva)}`;
-  seguroMensal.textContent = `Seguro mensal: ${formatValuesBRL(seguro)}`;
-  textTotal.textContent = `Total mensal: ${formatValuesBRL(totalMes)}`;
+  tabelaFipe.textContent = `Tabela fipe: ${formatMaskValuesBRL(fipe)}`;
+  parcelaMensal.textContent = `Parcela mensal: ${formatMaskValuesBRL(parcela)}`;
+  ipvaMensal.textContent = `IPVA mensal: ${formatMaskValuesBRL(ipva)}`;
+  seguroMensal.textContent = `Seguro mensal: ${formatMaskValuesBRL(seguro)}`;
+  textTotal.textContent = `Total mensal: ${formatMaskValuesBRL(totalMes)}`;
 }
 
 function destaqueResultado() {
@@ -96,21 +99,13 @@ function destaqueResultado() {
   labelSeguro.style.color = "black";
 }
 
-function formatValuesBRL(value) {
-  return Number(value).toLocaleString("pt-BR", {
+function formatMaskValuesBRL(value) {
+  value = value.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
-}
 
-function formatNumber(value) {
-  const number = parseFloat(value.replace(/\D/g, ""));
-  if (isNaN(number)) return "0,00";
-
-  return number
-    .toFixed(2)
-    .replace(".", ",")
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return value;
 }
 
 function limpaInputs() {
