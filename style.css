@@ -43,15 +43,20 @@ button {
 }
 
 label {
-  color: #c5c5c5;
+  color: gray;
   display: inline-block;
   margin-top: 2rem;
   font-weight: 700;
 }
 
+input:disabled {
+  color: black;
+}
+
 button {
   cursor: pointer;
   text-transform: uppercase;
+  color: black;
 
   margin-top: 2rem;
   font-weight: 900;
